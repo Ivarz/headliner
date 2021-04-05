@@ -1,0 +1,6 @@
+hacker-news	https://news.ycombinator.com/rss
+linux-insider	https://linuxinsider.com/rss-feed
+linux-today	http://feeds.feedburner.com/linuxtoday/linux?format=xml
+zdnet	https://www.zdnet.com/news/rss.xml
+slashdot	http://rss.slashdot.org/Slashdot/slashdotMain.xml
+cyberscoop	https://www.cyberscoop.com/feed

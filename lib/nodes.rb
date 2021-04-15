@@ -71,6 +71,7 @@ class RSSItem
 		puts @title
 		puts @description
 		puts @link
+		puts
 	end
 
 	def activate()
@@ -89,6 +90,7 @@ class RSSItem
 		end
 		if item.respond_to?(:description)
 			description = item.description
+			description.gsub!(/<\/?.*?>/,"")
 		end
 		if item.respond_to?(:link)
 			link = item.link

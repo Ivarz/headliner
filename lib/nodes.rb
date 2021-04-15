@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
-require 'nokogiri'
 require 'open-uri'
 require 'cli/ui'
+require 'rss'
 
 class NoOpNode
 	attr_reader :name 
@@ -51,23 +51,19 @@ class RSSNode
 
 	private
 	def fetch_rss(addr)
-		uri = Nokogiri::XML(URI.open(addr))
-		items = uri.xpath("//item")
-		if items.empty?
-			uri = Nokogiri::HTML(URI.open(addr))
-			items = uri.xpath("//item")
-		end
-		rss_items = items.map {|x| RSSItem.from_nokogiri_item(x)}
+		feed = RSS::Parser.parse(open(addr))
+		items = feed.items
+		rss_items = items.map {|x| RSSItem.from_feed_item(x)}
 		return rss_items.map {|item| [item.title, item]}.to_h
 	end
 
 end
 
 class RSSItem
-	def initialize(title, link, name)
+	def initialize(title, link, descr)
 		@title = title
 		@link = link
-		@description = name 
+		@description = descr
 	end
 
 	def display
@@ -84,6 +80,21 @@ class RSSItem
 			answer = CLI::UI.ask(@title, options: ['back'])
 		end
 	end
+	def self.from_feed_item(item)
+		title = ''
+		description = ''
+		link = ''
+		if item.respond_to?(:title)
+			title = item.title
+		end
+		if item.respond_to?(:description)
+			description = item.description
+		end
+		if item.respond_to?(:link)
+			link = item.link
+		end
+		RSSItem.new(title, description, link)
+	end
 
 	def self.from_nokogiri_item(xml_item)
 		def self.get_content(elem)
@@ -99,7 +110,7 @@ class RSSItem
 		title = RSSItem.get_content(title_elem)
 		link = RSSItem.get_content(link_elem)
 		descr = RSSItem.get_content(descr_elem)
-		if title == nil
+		if title.nil?
 			return nil
 		else
 			return RSSItem.new(title, link, descr)
